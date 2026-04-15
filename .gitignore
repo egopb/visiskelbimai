@@ -13,3 +13,5 @@ build/
 coverage/
 .idea/
 .vercel
+frontend/data/searches/
+api/data/searches/
