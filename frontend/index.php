@@ -65,23 +65,7 @@ require_once __DIR__ . '/includes/nav.php';
         <span class="text-gray-500 dark:text-slate-400">Dashboard</span>
     </div>
 
-    <?php if (!isLoggedIn()): ?>
-    <div class="card p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-lg bg-gray-100 dark:bg-slate-800 flex items-center justify-center">
-                <svg class="w-4 h-4 text-gray-500 dark:text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-            </div>
-            <div>
-                <p class="text-sm font-medium text-gray-900 dark:text-white">Prisijunkite, kad galėtumėte valdyti paieškas</p>
-                <p class="text-xs text-gray-400 dark:text-slate-500">Skelbiu.lt, Autoplius.lt ir Aruodas.lt paieškų konfigūravimas</p>
-            </div>
-        </div>
-        <a href="login.php"
-           class="px-4 py-2 rounded-lg text-sm font-medium bg-gray-900 dark:bg-white hover:bg-gray-800 dark:hover:bg-gray-100 text-white dark:text-gray-900 transition-colors">
-            Prisijungti
-        </a>
-    </div>
-    <?php endif; ?>
+
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -117,28 +101,6 @@ require_once __DIR__ . '/includes/nav.php';
             <div class="text-3xl font-extrabold text-gray-900 dark:text-white"><?= !empty($ads) ? number_format(max(array_column($ads, 'totalScore')), 1) : '0' ?>/100</div>
             <div class="text-xs text-gray-400 dark:text-slate-500 mt-1">geriausias pasiūlymas</div>
         </div>
-    </div>
-
-    <!-- Platform breakdown -->
-    <div class="card p-5">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Platformų apžvalga</h3>
-        <?php foreach ($platformOrder as $p):
-            $pAds = $grouped[$p] ?? [];
-            $pMeta = $platformMeta[$p];
-            $pCount = count($pAds);
-            $pPercent = $totalAds > 0 ? round($pCount / $totalAds * 100) : 0;
-            $barColors = ['skelbiu' => 'bg-emerald-500', 'autoplius' => 'bg-gray-900 dark:bg-slate-300', 'aruodas' => 'bg-orange-500'];
-        ?>
-        <div class="mb-3.5 last:mb-0">
-            <div class="flex items-center justify-between mb-1">
-                <span class="text-sm text-gray-700 dark:text-slate-300"><?= $pMeta['name'] ?></span>
-                <span class="text-sm text-gray-400 dark:text-slate-500"><?= $pPercent ?>%</span>
-            </div>
-            <div class="w-full h-2.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden">
-                <div class="score-bar h-full rounded-full <?= $barColors[$p] ?>" style="width: <?= $pPercent ?>%"></div>
-            </div>
-        </div>
-        <?php endforeach; ?>
     </div>
 
     <!-- Filters -->
