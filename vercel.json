@@ -1,15 +1,15 @@
 {
   "buildCommand": null,
-  "outputDirectory": "frontend",
   "functions": {
     "api/**/*.php": {
       "runtime": "vercel-php@0.7.2"
     }
   },
   "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.php"
-    }
+    { "src": "/login", "dest": "/api/login.php" },
+    { "src": "/skelbiu", "dest": "/api/skelbiu.php" },
+    { "src": "/autoplius", "dest": "/api/autoplius.php" },
+    { "src": "/aruodas", "dest": "/api/aruodas.php" },
+    { "src": "/(.*)", "dest": "/api/index.php" }
   ]
 }

@@ -1,13 +1,12 @@
 <?php
 /**
- * Skelbimu Monitoringo Dashboard
- * 
- * PHP frontend su Tailwind CSS — rodo skelbimų duomenis,
- * reitingus ir filtravimo galimybes.
+ * Skelbimu Monitoringo Dashboard — Rezultatų puslapis (public)
  */
+require_once __DIR__ . '/includes/auth.php';
+require_once __DIR__ . '/includes/helpers.php';
 
 // Load mock data
-$jsonPath = __DIR__ . '/../frontend/data/mock-ads.json';
+$jsonPath = __DIR__ . '/data/mock-ads.json';
 $data = json_decode(file_get_contents($jsonPath), true);
 $ads = $data['ads'] ?? [];
 $lastScan = $data['lastScan'] ?? '';
@@ -52,140 +51,29 @@ foreach ($platformOrder as $p) {
     $grouped[$p] = array_values(array_filter($filtered, fn($a) => $a['source'] === $p));
 }
 
-// Platform display metadata
-$platformMeta = [
-    'skelbiu' => [
-        'name' => 'Skelbiu.lt',
-        'icon' => '🟢',
-        'color' => 'emerald',
-        'url' => 'https://skelbiu.lt',
-        'desc' => 'Didžiausia Lietuvos skelbimų svetainė',
-    ],
-    'autoplius' => [
-        'name' => 'Autoplius.lt',
-        'icon' => '🔵',
-        'color' => 'blue',
-        'url' => 'https://autoplius.lt',
-        'desc' => 'Automobilių skelbimai ir rinka',
-    ],
-    'aruodas' => [
-        'name' => 'Aruodas.lt',
-        'icon' => '🟠',
-        'color' => 'orange',
-        'url' => 'https://aruodas.lt',
-        'desc' => 'Nekilnojamojo turto portalas',
-    ],
-];
-
-// Helpers
-function timeAgo(string $dateStr): string {
-    $diff = time() - strtotime($dateStr);
-    if ($diff < 3600) return floor($diff / 60) . ' min.';
-    if ($diff < 86400) return floor($diff / 3600) . ' val.';
-    return floor($diff / 86400) . ' d.';
-}
-
-function scoreColor(float $score): string {
-    if ($score >= 80) return 'text-emerald-400';
-    if ($score >= 60) return 'text-yellow-400';
-    if ($score >= 40) return 'text-orange-400';
-    return 'text-red-400';
-}
-
-function scoreBg(float $score): string {
-    if ($score >= 80) return 'bg-emerald-500/20 border-emerald-500/30';
-    if ($score >= 60) return 'bg-yellow-500/20 border-yellow-500/30';
-    if ($score >= 40) return 'bg-orange-500/20 border-orange-500/30';
-    return 'bg-red-500/20 border-red-500/30';
-}
-
-function sourceIcon(string $source): string {
-    return match ($source) {
-        'skelbiu' => '🟢',
-        'autoplius' => '🔵',
-        'aruodas' => '🟠',
-        default => '⚪',
-    };
-}
-
-function categoryIcon(string $cat): string {
-    return match ($cat) {
-        'automobiliai' => '🚗',
-        'nekilnojamasis' => '🏠',
-        'elektronika' => '💻',
-        default => '📦',
-    };
-}
-
-function categoryLabel(string $cat): string {
-    return match ($cat) {
-        'automobiliai' => 'Auto',
-        'nekilnojamasis' => 'NT',
-        'elektronika' => 'Tech',
-        default => $cat,
-    };
-}
+$pageTitle = 'VisiSkelbimai — Rezultatai';
+require_once __DIR__ . '/includes/head.php';
+require_once __DIR__ . '/includes/nav.php';
 ?>
-<!DOCTYPE html>
-<html lang="lt" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skelbimu Monitoringas</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        .score-bar { transition: width 0.6s ease-out; }
-        .card-hover { transition: all 0.2s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(0,0,0,0.3); }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); }
-        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
-    </style>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen">
-
-<!-- Header -->
-<header class="border-b border-slate-800 glass sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-lg font-bold shadow-lg shadow-violet-500/25">
-                    S
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold tracking-tight">Skelbimu Monitoringas</h1>
-                    <p class="text-xs text-slate-500">skelbiu.lt · autoplius.lt · aruodas.lt</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-4">
-                <div class="hidden sm:flex items-center gap-2 text-sm text-slate-400">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
-                    Paskutinis skenavimas: <?= timeAgo($lastScan) ?> prieš
-                </div>
-                <div class="px-3 py-1.5 rounded-lg bg-slate-800 text-xs text-slate-400 font-medium">
-                    <?= $scanCount ?> skenavimai
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <?php if (!isLoggedIn()): ?>
+    <!-- Login Banner -->
+    <div class="rounded-xl border border-violet-500/20 bg-violet-500/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🔒</span>
+            <div>
+                <p class="text-sm font-medium">Prisijunkite, kad galėtumėte valdyti paieškas</p>
+                <p class="text-xs text-slate-500">Skelbiu.lt, Autoplius.lt ir Aruodas.lt paieškų konfigūravimas</p>
+            </div>
+        </div>
+        <a href="/login"
+           class="px-5 py-2 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white transition-colors whitespace-nowrap">
+            Prisijungti
+        </a>
+    </div>
+    <?php endif; ?>
 
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -398,13 +286,4 @@ function categoryLabel(string $cat): string {
     <?php endforeach; ?>
 </main>
 
-<!-- Footer -->
-<footer class="border-t border-slate-800 mt-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-600">
-        <span>Skelbimu Monitoringas v1.0 — CloudCode</span>
-        <span>Mock data · <?= date('Y-m-d H:i') ?></span>
-    </div>
-</footer>
-
-</body>
-</html>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
