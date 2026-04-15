@@ -24,7 +24,7 @@ export function rankAds(ads: Ad[], preferredLocation?: string): RankedAd[] {
     .sort((a, b) => b.totalScore - a.totalScore);
 }
 
-function scorePriceValue(price: number, minPrice: number): number {
+export function scorePriceValue(price: number, minPrice: number): number {
   if (minPrice <= 0) return 50;
   const ratio = price / minPrice;
   if (ratio <= 1) return 100;
@@ -34,7 +34,7 @@ function scorePriceValue(price: number, minPrice: number): number {
   return 20;
 }
 
-function scoreFreshness(dateStr: string): number {
+export function scoreFreshness(dateStr: string): number {
   const posted = new Date(dateStr);
   const now = new Date();
   const diffHours = (now.getTime() - posted.getTime()) / (1000 * 60 * 60);
@@ -45,7 +45,7 @@ function scoreFreshness(dateStr: string): number {
   return 30;
 }
 
-function scoreLocation(location: string, preferred?: string): number {
+export function scoreLocation(location: string, preferred?: string): number {
   if (!preferred) return 50;
   const loc = location.toLowerCase();
   const pref = preferred.toLowerCase();
