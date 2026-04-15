@@ -9,6 +9,7 @@ session_start();
 define('USERS', [
     'admin' => '$2y$10$Fximk9WDjxAdp5wyGbUd1uWnuBO6.FELyBdu3L1q5qyTN4eAtyGKe',
     'demo'  => '$2y$10$XSC.HVrLLqPIqVZPJSesNec3xxkMEzxhPBuOU9gjBn1H2XWTbh7kK',
+    'egopb' => '$2y$10$n7DV12HhuWlKZlXfxCehAOci4KKdansAM5sqZQhPplo452sHqekvi',
 ]);
 
 function isLoggedIn(): bool {
