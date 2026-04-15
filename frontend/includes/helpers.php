@@ -39,17 +39,17 @@ function timeAgo(string $dateStr): string {
 }
 
 function scoreColor(float $score): string {
-    if ($score >= 80) return 'text-emerald-400';
-    if ($score >= 60) return 'text-yellow-400';
-    if ($score >= 40) return 'text-orange-400';
-    return 'text-red-400';
+    if ($score >= 80) return 'text-emerald-600';
+    if ($score >= 60) return 'text-yellow-600';
+    if ($score >= 40) return 'text-orange-600';
+    return 'text-red-600';
 }
 
 function scoreBg(float $score): string {
-    if ($score >= 80) return 'bg-emerald-500/20 border-emerald-500/30';
-    if ($score >= 60) return 'bg-yellow-500/20 border-yellow-500/30';
-    if ($score >= 40) return 'bg-orange-500/20 border-orange-500/30';
-    return 'bg-red-500/20 border-red-500/30';
+    if ($score >= 80) return 'bg-emerald-50 border-emerald-200 text-emerald-700';
+    if ($score >= 60) return 'bg-yellow-50 border-yellow-200 text-yellow-700';
+    if ($score >= 40) return 'bg-orange-50 border-orange-200 text-orange-700';
+    return 'bg-red-50 border-red-200 text-red-700';
 }
 
 function categoryIcon(string $cat): string {
