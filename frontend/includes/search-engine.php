@@ -28,50 +28,81 @@ function intervalLabel(iv) {
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
-function buildSearchUrl(platform, p) {
-    if (platform === 'skelbiu') {
-        const cats = {'Automobiliai':'automobiliai','Kompiuteriai':'kompiuteriai','Telefonai':'telefonai','Buitinė technika':'buitine-technika','Baldai':'baldai'};
-        const cities = {'Vilnius':465,'Kaunas':466,'Klaipėda':467,'Šiauliai':468,'Panevėžys':469};
-        const q = new URLSearchParams();
-        if (p['Raktažodis']) q.set('keywords', p['Raktažodis']);
-        if (p['Miestas'] && p['Miestas'] !== 'Visa Lietuva' && cities[p['Miestas']]) q.set('cities', cities[p['Miestas']]);
-        if (p['Kaina nuo']) q.set('price_from', p['Kaina nuo']);
-        if (p['Kaina iki']) q.set('price_to', p['Kaina iki']);
-        const cp = cats[p['Kategorija']] || '';
-        const base = cp ? `https://www.skelbiu.lt/skelbimai/${cp}/` : 'https://www.skelbiu.lt/skelbimai/';
-        return q.toString() ? base + '?' + q : base;
+// ── URL → parametrų parsing ──────────────────────────
+function parseSearchUrl(rawUrl) {
+    try { var u = new URL(rawUrl); } catch { return null; }
+    const host = u.hostname.replace('www.', '');
+    const q = u.searchParams;
+    const path = u.pathname;
+
+    if (host.includes('skelbiu.lt')) {
+        const p = {};
+        if (q.get('keywords')) p['Raktažodis'] = q.get('keywords');
+        if (q.get('price_from')) p['Kaina nuo'] = q.get('price_from') + ' €';
+        if (q.get('price_to')) p['Kaina iki'] = q.get('price_to') + ' €';
+        const cityRev = {'465':'Vilnius','466':'Kaunas','467':'Klaipėda','468':'Šiauliai','469':'Panevėžys'};
+        if (q.get('cities') && cityRev[q.get('cities')]) p['Miestas'] = cityRev[q.get('cities')];
+        const catMap = {'automobiliai':'Automobiliai','kompiuteriai':'Kompiuteriai','telefonai':'Telefonai','buitine-technika':'Buitinė technika','baldai':'Baldai','drabuziai':'Drabužiai','kita':'Kita'};
+        const seg = path.split('/').filter(Boolean);
+        if (seg.length >= 2) { const c = catMap[seg[1]] || seg[1]; p['Kategorija'] = c; }
+        const name = p['Raktažodis'] || p['Kategorija'] || 'Skelbiu.lt paieška';
+        return { platform: 'skelbiu', name, params: p, category: p['Kategorija'] || null, url: rawUrl };
     }
-    if (platform === 'autoplius') {
-        const q = new URLSearchParams();
-        if (p['Markė']) q.set('make_id_list', p['Markė']);
-        if (p['Modelis']) q.set('model_id_list', p['Modelis']);
-        if (p['Kaina nuo']) q.set('sell_price_from', p['Kaina nuo']);
-        if (p['Kaina iki']) q.set('sell_price_to', p['Kaina iki']);
-        if (p['Metai nuo']) q.set('make_date_from', p['Metai nuo']);
-        if (p['Rida iki']) q.set('mileage_to', p['Rida iki']);
-        const fuels = {'Dyzelis':1,'Benzinas':2,'Hibridas':5,'Elektra':3,'Dujos (LPG)':4};
-        if (p['Kuro tipas'] && fuels[p['Kuro tipas']]) q.set('fuel_type_id', fuels[p['Kuro tipas']]);
-        const gears = {'Automatinė':1,'Mechaninė':2};
-        if (p['Pavarų dėžė'] && gears[p['Pavarų dėžė']]) q.set('gearbox_id', gears[p['Pavarų dėžė']]);
-        return 'https://autoplius.lt/skelbimai/naudoti-automobiliai?' + q;
+
+    if (host.includes('autoplius.lt')) {
+        const p = {};
+        const fuelRev = {'1':'Dyzelis','2':'Benzinas','3':'Elektra','4':'Dujos (LPG)','5':'Hibridas'};
+        const gearRev = {'1':'Automatinė','2':'Mechaninė'};
+        if (q.get('make_id_list') || q.get('make_id')) p['Markė'] = q.get('make_id_list') || q.get('make_id');
+        if (q.get('model_id_list') || q.get('model_id')) p['Modelis'] = q.get('model_id_list') || q.get('model_id');
+        if (q.get('sell_price_from')) p['Kaina nuo'] = q.get('sell_price_from') + ' €';
+        if (q.get('sell_price_to')) p['Kaina iki'] = q.get('sell_price_to') + ' €';
+        if (q.get('make_date_from')) p['Metai nuo'] = q.get('make_date_from');
+        if (q.get('make_date_to')) p['Metai iki'] = q.get('make_date_to');
+        if (q.get('mileage_to')) p['Rida iki'] = q.get('mileage_to') + ' km';
+        if (q.get('fuel_type_id') && fuelRev[q.get('fuel_type_id')]) p['Kuras'] = fuelRev[q.get('fuel_type_id')];
+        if (q.get('gearbox_id') && gearRev[q.get('gearbox_id')]) p['Pavarų dėžė'] = gearRev[q.get('gearbox_id')];
+        // Parse branded URLs like /skelbimai/naudoti-automobiliai/volkswagen/passat
+        const seg = path.split('/').filter(Boolean);
+        if (seg.length >= 3 && !p['Markė']) p['Markė'] = decodeURIComponent(seg[2]);
+        if (seg.length >= 4 && !p['Modelis']) p['Modelis'] = decodeURIComponent(seg[3]);
+        const parts = []; if (p['Markė']) parts.push(p['Markė']); if (p['Modelis']) parts.push(p['Modelis']);
+        const name = parts.length ? parts.join(' ') : 'Autoplius paieška';
+        return { platform: 'autoplius', name, params: p, category: null, url: rawUrl };
     }
-    if (platform === 'aruodas') {
-        const types = {'Butai pardavimui':'butai','Butai nuomai':'butu-nuoma','Namai pardavimui':'namai','Sklypai':'sklypai','Patalpos':'patalpos'};
-        const cities = {'Vilnius':'vilniuje','Kaunas':'kaune','Klaipėda':'klaipedoje','Šiauliai':'siauliuose','Panevėžys':'panevezyje'};
-        const tp = types[p['Tipas']] || 'butai';
-        const ct = cities[p['Miestas']] || '';
-        let url = `https://www.aruodas.lt/${tp}/`;
-        if (ct) url += ct + '/';
-        const q = new URLSearchParams();
-        if (p['Kaina nuo']) q.set('price_from', p['Kaina nuo']);
-        if (p['Kaina iki']) q.set('price_to', p['Kaina iki']);
-        if (p['Kambariai nuo']) q.set('rooms_from', p['Kambariai nuo']);
-        if (p['Plotas nuo']) q.set('area_from', p['Plotas nuo']);
-        return q.toString() ? url + '?' + q : url;
+
+    if (host.includes('aruodas.lt')) {
+        const p = {};
+        const typeRev = {'butai':'Butai pardavimui','butu-nuoma':'Butai nuomai','namai':'Namai pardavimui','sklypai':'Sklypai','patalpos':'Patalpos','namu-nuoma':'Namų nuoma'};
+        const cityRev = {'vilniuje':'Vilnius','kaune':'Kaunas','klaipedoje':'Klaipėda','siauliuose':'Šiauliai','panevezyje':'Panevėžys'};
+        const seg = path.split('/').filter(Boolean);
+        if (seg[0] && typeRev[seg[0]]) p['Tipas'] = typeRev[seg[0]];
+        else if (seg[0]) p['Tipas'] = seg[0];
+        if (seg[1] && cityRev[seg[1]]) p['Miestas'] = cityRev[seg[1]];
+        else if (seg[1] && !seg[1].match(/^\d/)) p['Rajonas'] = decodeURIComponent(seg[1]);
+        if (q.get('price_from')) p['Kaina nuo'] = q.get('price_from') + ' €';
+        if (q.get('price_to')) p['Kaina iki'] = q.get('price_to') + ' €';
+        if (q.get('rooms_from')) p['Kambariai nuo'] = q.get('rooms_from');
+        if (q.get('area_from')) p['Plotas nuo'] = q.get('area_from') + ' m²';
+        if (q.get('FOrder')) p['Rūšiavimas'] = q.get('FOrder');
+        const parts = []; if (p['Tipas']) parts.push(p['Tipas']); if (p['Miestas']) parts.push(p['Miestas']);
+        const name = parts.length ? parts.join(' — ') : 'Aruodas paieška';
+        return { platform: 'aruodas', name, params: p, category: p['Tipas'] || null, url: rawUrl };
     }
-    return '#';
+
+    return null;
 }
 
+function detectPlatform(rawUrl) {
+    try { var u = new URL(rawUrl); } catch { return null; }
+    const h = u.hostname.replace('www.', '');
+    if (h.includes('skelbiu.lt')) return 'skelbiu';
+    if (h.includes('autoplius.lt')) return 'autoplius';
+    if (h.includes('aruodas.lt')) return 'aruodas';
+    return null;
+}
+
+// ── Rendering ──────────────────────────
 const emptyIcons = {'skelbiu':'🔍','autoplius':'🚗','aruodas':'🏠'};
 
 function renderSearches() {
@@ -82,10 +113,10 @@ function renderSearches() {
         <div class="card p-10 text-center">
             <div class="text-5xl mb-4">${emptyIcons[PLATFORM] || '🔍'}</div>
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Nėra aktyvių paieškų</h3>
-            <p class="text-sm text-gray-500 dark:text-slate-400 mb-4">Sukurkite naują paiešką ir sistema periodiškai skenuos ${esc(META_NAME)}</p>
+            <p class="text-sm text-gray-500 dark:text-slate-400 mb-4">Nukopijuokite paieškos nuorodą iš ${esc(META_NAME)} ir sistema stebės naujus skelbimus</p>
             <button onclick="document.getElementById('newSearchModal').classList.remove('hidden')"
                     class="bg-${META_COLOR}-600 hover:bg-${META_COLOR}-500 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors">
-                Sukurti pirmą paiešką
+                + Pridėti paiešką
             </button>
         </div>`;
         return;
@@ -98,8 +129,7 @@ function renderSearches() {
         const statusBadge = s.active
             ? '<span class="px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-xs font-medium border border-emerald-200 dark:border-emerald-500/25">Aktyvus</span>'
             : '<span class="px-2 py-0.5 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-slate-400 text-xs font-medium">Sustabdytas</span>';
-        const url = s.searchUrl || buildSearchUrl(PLATFORM, s.params || {});
-        const linkBtn = url && url !== '#' ? `<a href="${esc(url)}" target="_blank" rel="noopener" class="p-2 rounded-lg text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Atidaryti ${esc(META_NAME)}">🔗</a>` : '';
+        const url = s.searchUrl || '#';
 
         return `<div class="card p-5">
             <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -112,12 +142,10 @@ function renderSearches() {
                     <div class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-400 dark:text-slate-500">
                         <span>🔄 Kas ${intervalLabel(s.interval || 60)}</span>
                         <span>🕐 ${timeAgo(s.lastScan)}</span>
-                        <span>📋 ${s.foundAds || 0} skelbimų</span>
                     </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                    ${linkBtn}
-                    <button onclick="openSearch('${s.id}')" class="p-2 rounded-lg text-gray-400 dark:text-slate-400 hover:text-${META_COLOR}-600 dark:hover:text-${META_COLOR}-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Atidaryti paieškos URL">🔍</button>
+                    <a href="${esc(url)}" target="_blank" rel="noopener" class="p-2 rounded-lg text-gray-400 dark:text-slate-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Atidaryti ${esc(META_NAME)}">🔗</a>
                     <button onclick="toggleSearch('${s.id}')" class="p-2 rounded-lg text-gray-400 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="${s.active ? 'Sustabdyti' : 'Aktyvuoti'}">${s.active ? '⏸️' : '▶️'}</button>
                     <button onclick="deleteSearch('${s.id}')" class="p-2 rounded-lg text-gray-400 dark:text-slate-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors" title="Ištrinti">🗑️</button>
                 </div>
@@ -126,20 +154,30 @@ function renderSearches() {
     }).join('') + '</div>';
 }
 
-function createSearch(name, interval, params, category) {
+// ── CRUD ──────────────────────────
+function createSearchFromUrl(rawUrl, customName, interval) {
+    const parsed = parseSearchUrl(rawUrl);
+    if (!parsed) { alert('Nepavyko atpažinti nuorodos. Palaikomi: skelbiu.lt, autoplius.lt, aruodas.lt'); return false; }
+    if (parsed.platform !== PLATFORM) {
+        alert(`Ši nuoroda yra iš ${parsed.platform}, o jūs esate ${META_NAME} puslapyje.`);
+        return false;
+    }
     const searches = loadSearches();
-    const url = buildSearchUrl(PLATFORM, params);
     searches.push({
-        id: genId(), name, active: true,
+        id: genId(),
+        name: customName || parsed.name,
+        active: true,
         interval: parseInt(interval) || 60,
-        params, category: category || null,
+        params: parsed.params,
+        category: parsed.category,
         created: new Date().toISOString(),
-        lastScan: null, foundAds: 0, searchUrl: url
+        lastScan: null,
+        foundAds: 0,
+        searchUrl: rawUrl.trim()
     });
     saveSearches(searches);
     renderSearches();
-    document.getElementById('newSearchModal').classList.add('hidden');
-    document.getElementById('searchForm').reset();
+    return true;
 }
 
 function toggleSearch(id) {
@@ -154,27 +192,54 @@ function deleteSearch(id) {
     renderSearches();
 }
 
-function openSearch(id) {
-    const s = loadSearches().find(x => x.id === id);
-    if (!s) return;
-    const url = s.searchUrl || buildSearchUrl(PLATFORM, s.params || {});
-    if (url && url !== '#') window.open(url, '_blank');
+// ── URL paste preview ──────────────────────────
+const urlInput = document.getElementById('searchUrl');
+const previewBox = document.getElementById('urlPreview');
+const nameInput = document.querySelector('[name="search_name"]');
+
+if (urlInput) {
+    urlInput.addEventListener('input', function() {
+        const raw = this.value.trim();
+        if (!raw) { previewBox.classList.add('hidden'); return; }
+        const parsed = parseSearchUrl(raw);
+        if (!parsed) {
+            previewBox.innerHTML = '<p class="text-red-500 dark:text-red-400 text-xs">⚠️ Nepalaikoma nuoroda</p>';
+            previewBox.classList.remove('hidden');
+            return;
+        }
+        if (parsed.platform !== PLATFORM) {
+            previewBox.innerHTML = `<p class="text-orange-500 dark:text-orange-400 text-xs">⚠️ Ši nuoroda yra iš <b>${parsed.platform}</b>. Puslapyje: <b>${PLATFORM}</b></p>`;
+            previewBox.classList.remove('hidden');
+            return;
+        }
+        // Auto-fill name
+        if (!nameInput.value || nameInput.dataset.autoFilled === 'true') {
+            nameInput.value = parsed.name;
+            nameInput.dataset.autoFilled = 'true';
+        }
+        // Show parsed params
+        const tags = Object.entries(parsed.params).map(([k,v]) =>
+            `<span class="px-2 py-0.5 rounded bg-gray-100 dark:bg-slate-700 text-xs text-gray-600 dark:text-slate-300">${esc(k)}: ${esc(v)}</span>`
+        ).join(' ');
+        previewBox.innerHTML = `<p class="text-xs text-emerald-600 dark:text-emerald-400 mb-1.5">✅ Atpažinta: ${esc(parsed.name)}</p><div class="flex flex-wrap gap-1.5">${tags}</div>`;
+        previewBox.classList.remove('hidden');
+    });
+    // Clear autoFilled flag on manual name edit
+    if (nameInput) nameInput.addEventListener('input', function() { this.dataset.autoFilled = 'false'; });
 }
 
-// Form handler
+// Form submit
 document.getElementById('searchForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const name = this.querySelector('[name="search_name"]').value.trim();
-    if (!name) return;
+    const url = document.getElementById('searchUrl').value.trim();
+    if (!url) { alert('Įklijuokite paieškos nuorodą'); return; }
+    const name = nameInput.value.trim();
     const interval = this.querySelector('[name="interval"]').value;
-    const params = {};
-    this.querySelectorAll('[data-param]').forEach(el => {
-        const v = el.value.trim();
-        if (v) params[el.dataset.param] = v;
-    });
-    const catEl = this.querySelector('[name="category"]');
-    const category = catEl ? catEl.value : null;
-    createSearch(name, interval, params, category);
+    if (createSearchFromUrl(url, name, interval)) {
+        this.reset();
+        previewBox.classList.add('hidden');
+        document.getElementById('newSearchModal').classList.add('hidden');
+    }
 });
 
 // Initial render

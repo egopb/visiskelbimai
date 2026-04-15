@@ -35,49 +35,14 @@ $ic = "w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slat
             </div>
             <form id="searchForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Paieškos pavadinimas</label>
-                    <input type="text" name="search_name" required placeholder="pvz. 2k butas Senamiestyje" class="<?= $ic ?>">
+                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Įklijuokite nuorodą iš <?= $meta['name'] ?></label>
+                    <input type="url" id="searchUrl" required placeholder="https://www.aruodas.lt/butai/vilniuje/?price_to=150000" class="<?= $ic ?>">
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Atidarykite <?= $meta['name'] ?>, susifiltruokite pageidaujamus rezultatus ir nukopijuokite nuorodą</p>
                 </div>
+                <div id="urlPreview" class="hidden p-3 rounded-lg border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50"></div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Tipas</label>
-                    <select name="category" data-param="Tipas" class="<?= $ic ?>">
-                        <option>Butai pardavimui</option><option>Butai nuomai</option>
-                        <option>Namai pardavimui</option><option>Sklypai</option><option>Patalpos</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Miestas</label>
-                    <select data-param="Miestas" class="<?= $ic ?>">
-                        <option>Vilnius</option><option>Kaunas</option><option>Klaipėda</option>
-                        <option>Šiauliai</option><option>Panevėžys</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Rajonas / mikrorajonas</label>
-                    <input type="text" data-param="Rajonas" placeholder="pvz. Žirmūnai, Antakalnis..." class="<?= $ic ?>">
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Kaina nuo (€)</label>
-                        <input type="number" data-param="Kaina nuo" placeholder="0" class="<?= $ic ?>">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Kaina iki (€)</label>
-                        <input type="number" data-param="Kaina iki" placeholder="200000" class="<?= $ic ?>">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Kambariai nuo</label>
-                        <select data-param="Kambariai nuo" class="<?= $ic ?>">
-                            <option value="">-</option>
-                            <option>1</option><option>2</option><option>3</option><option>4</option><option>5+</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Plotas nuo (m²)</label>
-                        <input type="number" data-param="Plotas nuo" placeholder="30" class="<?= $ic ?>">
-                    </div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Pavadinimas</label>
+                    <input type="text" name="search_name" placeholder="Automatiškai iš nuorodos" class="<?= $ic ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Skenavimo intervalas</label>
@@ -89,7 +54,7 @@ $ic = "w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slat
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('newSearchModal').classList.add('hidden')"
                             class="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">Atšaukti</button>
-                    <button type="submit" class="flex-1 bg-<?= $meta['color'] ?>-600 hover:bg-<?= $meta['color'] ?>-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">Sukurti paiešką</button>
+                    <button type="submit" class="flex-1 bg-<?= $meta['color'] ?>-600 hover:bg-<?= $meta['color'] ?>-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">Pridėti paiešką</button>
                 </div>
             </form>
         </div>

@@ -35,61 +35,14 @@ $ic = "w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slat
             </div>
             <form id="searchForm" class="space-y-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Paieškos pavadinimas</label>
-                    <input type="text" name="search_name" required placeholder="pvz. Audi A4 Avant" class="<?= $ic ?>">
+                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Įklijuokite nuorodą iš <?= $meta['name'] ?></label>
+                    <input type="url" id="searchUrl" required placeholder="https://autoplius.lt/skelbimai/naudoti-automobiliai?make_id_list=BMW&sell_price_to=15000" class="<?= $ic ?>">
+                    <p class="text-xs text-gray-400 dark:text-slate-500 mt-1">Atidarykite <?= $meta['name'] ?>, susifiltruokite pageidaujamus rezultatus ir nukopijuokite nuorodą</p>
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Markė</label>
-                        <select data-param="Markė" class="<?= $ic ?>">
-                            <option value="">Visos</option>
-                            <option>Audi</option><option>BMW</option><option>Citroën</option><option>Ford</option>
-                            <option>Honda</option><option>Hyundai</option><option>Kia</option>
-                            <option>Mazda</option><option>Mercedes-Benz</option><option>Nissan</option>
-                            <option>Opel</option><option>Peugeot</option><option>Renault</option><option>Seat</option>
-                            <option>Škoda</option><option>Toyota</option><option>Volkswagen</option><option>Volvo</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Modelis</label>
-                        <input type="text" data-param="Modelis" placeholder="pvz. Passat, RAV4..." class="<?= $ic ?>">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Kaina nuo (€)</label>
-                        <input type="number" data-param="Kaina nuo" placeholder="0" class="<?= $ic ?>">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Kaina iki (€)</label>
-                        <input type="number" data-param="Kaina iki" placeholder="50000" class="<?= $ic ?>">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Metai nuo</label>
-                        <input type="number" data-param="Metai nuo" placeholder="2015" min="1990" max="2026" class="<?= $ic ?>">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Rida iki (km)</label>
-                        <input type="number" data-param="Rida iki" placeholder="200000" class="<?= $ic ?>">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Kuro tipas</label>
-                        <select data-param="Kuro tipas" class="<?= $ic ?>">
-                            <option value="">Visi</option>
-                            <option>Dyzelis</option><option>Benzinas</option>
-                            <option>Hibridas</option><option>Elektra</option><option>Dujos (LPG)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Pavarų dėžė</label>
-                        <select data-param="Pavarų dėžė" class="<?= $ic ?>">
-                            <option value="">Visos</option><option>Automatinė</option><option>Mechaninė</option>
-                        </select>
-                    </div>
+                <div id="urlPreview" class="hidden p-3 rounded-lg border border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50"></div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Pavadinimas</label>
+                    <input type="text" name="search_name" placeholder="Automatiškai iš nuorodos" class="<?= $ic ?>">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-600 dark:text-slate-400 mb-1">Skenavimo intervalas</label>
@@ -101,7 +54,7 @@ $ic = "w-full bg-white dark:bg-slate-800 border border-gray-200 dark:border-slat
                 <div class="flex gap-3 pt-2">
                     <button type="button" onclick="document.getElementById('newSearchModal').classList.add('hidden')"
                             class="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">Atšaukti</button>
-                    <button type="submit" class="flex-1 bg-<?= $meta['color'] ?>-600 hover:bg-<?= $meta['color'] ?>-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">Sukurti paiešką</button>
+                    <button type="submit" class="flex-1 bg-<?= $meta['color'] ?>-600 hover:bg-<?= $meta['color'] ?>-500 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors">Pridėti paiešką</button>
                 </div>
             </form>
         </div>
