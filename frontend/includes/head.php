@@ -4,9 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $pageTitle ?? 'VisiSkelbimai' ?></title>
+    <script>
+        // Apply theme before render to prevent flash
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark' || (!t && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
                     fontFamily: {
@@ -26,13 +36,17 @@
         body { font-family: 'Inter', system-ui, sans-serif; }
         .score-bar { transition: width 0.6s ease-out; }
         .card { background: #fff; border: 1px solid #e8e2db; border-radius: 12px; }
+        html.dark .card { background: #1e293b; border-color: #334155; }
         .card-hover { transition: all 0.15s ease; }
         .card-hover:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+        html.dark .card-hover:hover { box-shadow: 0 2px 16px rgba(0,0,0,0.4); }
         .sidebar-link { transition: all 0.12s ease; border-radius: 8px; }
         .sidebar-link:hover { background: rgba(0,0,0,0.04); }
         .sidebar-link.active { background: rgba(0,0,0,0.06); font-weight: 600; }
+        html.dark .sidebar-link:hover { background: rgba(255,255,255,0.06); }
+        html.dark .sidebar-link.active { background: rgba(255,255,255,0.08); }
         @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
         .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-cream text-gray-900 min-h-screen flex">
+<body class="bg-cream dark:bg-slate-950 text-gray-900 dark:text-slate-100 min-h-screen flex">

@@ -39,17 +39,17 @@ function timeAgo(string $dateStr): string {
 }
 
 function scoreColor(float $score): string {
-    if ($score >= 80) return 'text-emerald-600';
-    if ($score >= 60) return 'text-yellow-600';
-    if ($score >= 40) return 'text-orange-600';
-    return 'text-red-600';
+    if ($score >= 80) return 'text-emerald-600 dark:text-emerald-400';
+    if ($score >= 60) return 'text-yellow-600 dark:text-yellow-400';
+    if ($score >= 40) return 'text-orange-600 dark:text-orange-400';
+    return 'text-red-600 dark:text-red-400';
 }
 
 function scoreBg(float $score): string {
-    if ($score >= 80) return 'bg-emerald-50 border-emerald-200 text-emerald-700';
-    if ($score >= 60) return 'bg-yellow-50 border-yellow-200 text-yellow-700';
-    if ($score >= 40) return 'bg-orange-50 border-orange-200 text-orange-700';
-    return 'bg-red-50 border-red-200 text-red-700';
+    if ($score >= 80) return 'bg-emerald-50 dark:bg-emerald-500/20 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400';
+    if ($score >= 60) return 'bg-yellow-50 dark:bg-yellow-500/20 border-yellow-200 dark:border-yellow-500/30 text-yellow-700 dark:text-yellow-400';
+    if ($score >= 40) return 'bg-orange-50 dark:bg-orange-500/20 border-orange-200 dark:border-orange-500/30 text-orange-700 dark:text-orange-400';
+    return 'bg-red-50 dark:bg-red-500/20 border-red-200 dark:border-red-500/30 text-red-700 dark:text-red-400';
 }
 
 function categoryIcon(string $cat): string {
