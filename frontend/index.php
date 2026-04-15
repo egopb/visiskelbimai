@@ -58,6 +58,23 @@ require_once __DIR__ . '/includes/nav.php';
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
+    <?php if (!isLoggedIn()): ?>
+    <!-- Login Banner -->
+    <div class="rounded-xl border border-violet-500/20 bg-violet-500/5 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+            <span class="text-2xl">🔒</span>
+            <div>
+                <p class="text-sm font-medium">Prisijunkite, kad galėtumėte valdyti paieškas</p>
+                <p class="text-xs text-slate-500">Skelbiu.lt, Autoplius.lt ir Aruodas.lt paieškų konfigūravimas</p>
+            </div>
+        </div>
+        <a href="login.php"
+           class="px-5 py-2 rounded-lg text-sm font-medium bg-violet-600 hover:bg-violet-500 text-white transition-colors whitespace-nowrap">
+            Prisijungti
+        </a>
+    </div>
+    <?php endif; ?>
+
     <!-- Stats Cards -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="rounded-xl border border-slate-800 bg-slate-900/50 p-4">

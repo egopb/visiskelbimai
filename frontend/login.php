@@ -76,7 +76,7 @@ require_once __DIR__ . '/includes/head.php';
         </form>
 
         <p class="text-center text-xs text-slate-600 mt-6">
-            Testas: admin / admin123
+            Testas: egopb / egopb@egopb
         </p>
     </div>
 </div>
