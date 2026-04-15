@@ -6,6 +6,7 @@
     }
   },
   "routes": [
+    { "src": "/search-api", "dest": "/api/search-api.php" },
     { "src": "/login", "dest": "/api/login.php" },
     { "src": "/skelbiu", "dest": "/api/skelbiu.php" },
     { "src": "/autoplius", "dest": "/api/autoplius.php" },
