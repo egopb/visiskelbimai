@@ -1,0 +1,35 @@
+{
+  "name": "skelbiu-compare",
+  "version": "0.1.0",
+  "description": "skelbiu.lt scraper - paieškas, skelbimu komparijavimas",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "eslint src/**/*.ts"
+  },
+  "keywords": [
+    "skelbiu.lt",
+    "scraper",
+    "comparison",
+    "deals"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/node-telegram-bot-api": "^0.63.0",
+    "eslint": "^9.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.0.0",
+    "node-telegram-bot-api": "^0.63.0",
+    "sql.js": "^1.14.1"
+  }
+}
